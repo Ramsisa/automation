@@ -1,0 +1,243 @@
+{
+  "name": "Sheets → Ramsisa → Gmail (single rep)",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "month",
+              "value": "={{$now.plus({months: 1}).toFormat('yyyy-LL')}}",
+              "type": "string"
+            },
+            {
+              "name": "rep_email",
+              "value": "rep@example.com",
+              "type": "string"
+            },
+            {
+              "name": "rep_name",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Locations",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "name": "Sheets: Locations",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        680,
+        240
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Map sheet rows -> Ramsisa locations[] payload (one rep's clients).\n// Field names match the Ramsisa API exactly (https://schedule.ramsisa.com/docs/api-reference/):\n//   id, name, tier (A|B|C), territory, latitude, longitude\n// Optional: available_from, available_to, available_days.\n//\n// The sheet may use canonical names (id/latitude/longitude) or short aliases\n// (ID/lat/lng); both are accepted here. available_days accepts comma, semicolon,\n// whitespace, or pipe as separators.\n//\n// `territory` here is the rep's own sub-area (e.g. north vs. south of their\n// patch) — Ramsisa uses it to keep day-routes geographically tight. It is NOT\n// a different rep.\n\nconst DAY_ALIASES = {\n  sat: 'saturday', sun: 'sunday', mon: 'monday', tue: 'tuesday', wed: 'wednesday', thu: 'thursday', fri: 'friday',\n};\n\nconst locations = $input.all().map((item) => {\n  const r = item.json;\n  const loc = {\n    id: String(r.id ?? r.ID ?? '').trim(),\n    name: String(r.name ?? '').trim(),\n    tier: String(r.tier ?? '').trim().toUpperCase(),\n    territory: String(r.territory ?? '').trim(),\n    latitude: Number(r.latitude ?? r.lat),\n    longitude: Number(r.longitude ?? r.lng),\n  };\n  if (r.available_from) loc.available_from = String(r.available_from);\n  if (r.available_to) loc.available_to = String(r.available_to);\n  if (r.available_days) {\n    loc.available_days = String(r.available_days)\n      .split(/[,;|\\s]+/)\n      .filter(Boolean)\n      .map((s) => s.toLowerCase())\n      .map((s) => DAY_ALIASES[s] || s);\n  }\n  return loc;\n});\n\nconst missing = locations.filter((l) => !l.id || !l.tier || Number.isNaN(l.latitude) || Number.isNaN(l.longitude));\nif (missing.length) {\n  throw new Error(`${missing.length} row(s) missing id/tier/latitude/longitude`);\n}\n\nreturn [{ json: { locations } }];"
+      },
+      "name": "Build locations payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "generateAndWait",
+        "locations": "={{ JSON.stringify($json.locations) }}",
+        "month": "={{ $('Config').item.json.month }}",
+        "additionalFields": {},
+        "pollIntervalSec": 5,
+        "maxWaitSec": 600,
+        "downloadCsv": true,
+        "binaryPropertyName": "data"
+      },
+      "name": "Ramsisa: Generate Schedule",
+      "type": "n8n-nodes-ramsisa.ramsisa",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        240
+      ],
+      "credentials": {
+        "ramsisaApi": {
+          "name": "Ramsisa API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "If completed",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1360,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.rep_email }}",
+        "subject": "=Your visit schedule for {{ $('Config').first().json.month }}",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.rep_name || 'there' }},\n\nYour scheduled visits for {{ $('Config').first().json.month }} are attached as a CSV ({{ $json.summary?.total_visits ?? '—' }} visits across {{ $json.summary?.total_days ?? '—' }} days).\n\nSchedule ID: {{ $json.schedule_id }}\n\n— Ramsisa",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Gmail: Send",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1580,
+        240
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Sheets: Locations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets: Locations": {
+      "main": [
+        [
+          {
+            "node": "Build locations payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build locations payload": {
+      "main": [
+        [
+          {
+            "node": "Ramsisa: Generate Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ramsisa: Generate Schedule": {
+      "main": [
+        [
+          {
+            "node": "If completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If completed": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Send",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

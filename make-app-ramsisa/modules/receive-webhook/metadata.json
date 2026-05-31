@@ -1,0 +1,9 @@
+{
+  "name": "receive-webhook",
+  "label": "Receive Schedule Webhook",
+  "description": "Instant trigger. Fires when Ramsisa POSTs a schedule completion or failure notification. Pair with the schedule-completion webhook.",
+  "type": "trigger",
+  "subtype": "instant",
+  "connection": "apiKey",
+  "webhook": "schedule-completion"
+}

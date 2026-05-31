@@ -1,0 +1,10 @@
+[
+  { "name": "schedule_id", "type": "uuid", "label": "Schedule ID" },
+  { "name": "status", "type": "text", "label": "Status" },
+  { "name": "month", "type": "text", "label": "Month" },
+  { "name": "created_at", "type": "date", "label": "Created At" },
+  { "name": "completed_at", "type": "date", "label": "Completed At" },
+  { "name": "download_url", "type": "url", "label": "Download URL" },
+  { "name": "error", "type": "text", "label": "Error" },
+  { "name": "summary", "type": "any", "label": "Summary" }
+]

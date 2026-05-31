@@ -1,0 +1,64 @@
+{
+  "name": "n8n-nodes-ramsisa",
+  "version": "0.1.1",
+  "description": "n8n community node for the Ramsisa field visit scheduling API.",
+  "keywords": [
+    "n8n-community-node-package",
+    "ramsisa",
+    "scheduling",
+    "field-visits",
+    "route-optimization",
+    "territory-planning",
+    "field-service",
+    "sales-routing"
+  ],
+  "license": "MIT",
+  "homepage": "https://ramsisa.com",
+  "author": {
+    "name": "Ramsisa",
+    "email": "leaders@upsynx.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ramsisa/schedule.git",
+    "directory": "automation/n8n-nodes-ramsisa"
+  },
+  "engines": {
+    "node": ">=20.15"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && gulp build:icons",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "format": "prettier nodes credentials --write",
+    "lint": "eslint nodes credentials",
+    "lintfix": "eslint nodes credentials --fix",
+    "prepublishOnly": "npm run build && npm run lint"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/RamsisaApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Ramsisa/Ramsisa.node.js",
+      "dist/nodes/RamsisaTrigger/RamsisaTrigger.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@typescript-eslint/parser": "~7.15.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-n8n-nodes-base": "^1.16.3",
+    "gulp": "^5.0.0",
+    "n8n-workflow": "*",
+    "prettier": "^3.3.2",
+    "typescript": "^5.5.3"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}

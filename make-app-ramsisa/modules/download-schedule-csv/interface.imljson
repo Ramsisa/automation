@@ -1,0 +1,5 @@
+[
+  { "name": "fileName", "type": "filename", "label": "File Name" },
+  { "name": "mimeType", "type": "text", "label": "MIME Type" },
+  { "name": "data", "type": "buffer", "label": "Data" }
+]

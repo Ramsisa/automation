@@ -1,0 +1,56 @@
+[
+  {
+    "name": "locations",
+    "label": "Locations",
+    "type": "array",
+    "required": true,
+    "help": "TODO: replace with a full collection spec — each item has ID, name, tier (A|B|C), territory, latitude, longitude, and optional available_from/available_to/available_days.",
+    "spec": {
+      "type": "any"
+    }
+  },
+  {
+    "name": "month",
+    "label": "Month (YYYY-MM)",
+    "type": "text",
+    "required": true,
+    "validate": {
+      "pattern": "^\\d{4}-\\d{2}$"
+    }
+  },
+  {
+    "name": "webhookUrl",
+    "label": "Webhook URL",
+    "type": "url",
+    "required": false,
+    "help": "Optional. URL Ramsisa POSTs to when the schedule completes or fails. Use the URL produced by the Receive Webhook trigger."
+  },
+  {
+    "name": "visits_completed",
+    "label": "Visits Completed (Period 2 only)",
+    "type": "array",
+    "required": false,
+    "spec": { "type": "any" }
+  },
+  {
+    "name": "monthly_target",
+    "label": "Monthly Target per Tier",
+    "type": "any",
+    "required": false,
+    "help": "JSON object like {\"A\":3,\"B\":2,\"C\":1}"
+  },
+  {
+    "name": "period_target",
+    "label": "Period Target per Tier",
+    "type": "any",
+    "required": false,
+    "help": "JSON object like {\"A\":2,\"B\":1,\"C\":1}"
+  },
+  {
+    "name": "excluded_days",
+    "label": "Excluded Days",
+    "type": "array",
+    "required": false,
+    "spec": { "type": "text" }
+  }
+]

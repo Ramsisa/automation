@@ -1,0 +1,9 @@
+{
+  "name": "generate-schedule",
+  "label": "Generate Schedule",
+  "description": "Submit a new schedule generation request. Returns immediately with a schedule_id.",
+  "type": "action",
+  "actionType": "create",
+  "connection": "apiKey",
+  "webhook": null
+}

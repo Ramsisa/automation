@@ -1,0 +1,15 @@
+{
+  "url": "/schedules/{{parameters.scheduleId}}/download/",
+  "method": "GET",
+  "type": "binary",
+  "headers": {
+    "Accept": "text/csv"
+  },
+  "response": {
+    "output": {
+      "data": "{{body}}",
+      "fileName": "schedule_{{parameters.scheduleId}}.csv",
+      "mimeType": "text/csv"
+    }
+  }
+}

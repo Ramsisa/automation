@@ -1,0 +1,28 @@
+[
+  {
+    "name": "baseUrl",
+    "label": "Base URL",
+    "type": "url",
+    "required": true,
+    "default": "https://schedule.ramsisa.com",
+    "help": "Root URL of the Ramsisa service. No trailing /api segment."
+  },
+  {
+    "name": "apiVersion",
+    "label": "API Version",
+    "type": "select",
+    "required": true,
+    "default": "v1",
+    "options": [
+      { "label": "v1", "value": "v1" }
+    ],
+    "help": "Pinned per connection — existing scenarios keep working when a new API version ships."
+  },
+  {
+    "name": "apiKey",
+    "label": "API Key",
+    "type": "password",
+    "required": true,
+    "help": "Bearer token issued by your Ramsisa organization admin."
+  }
+]

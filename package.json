@@ -1,0 +1,23 @@
+{
+  "name": "ramsisa-automation",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Tooling root for the Ramsisa automation repo — sanitization + validation scripts for the n8n workflow catalog under workflows/n8n/.",
+  "engines": {
+    "node": ">=20.15"
+  },
+  "type": "module",
+  "scripts": {
+    "sanitize": "node workflows/n8n/_scripts/sanitize.mjs",
+    "sanitize:check": "node workflows/n8n/_scripts/sanitize.mjs --check",
+    "validate": "node workflows/n8n/_scripts/validate.mjs",
+    "test": "node --test",
+    "check": "npm run sanitize:check && npm run validate && npm test",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "gray-matter": "^4.0.3",
+    "husky": "^9.1.6",
+    "semver": "^7.6.3"
+  }
+}

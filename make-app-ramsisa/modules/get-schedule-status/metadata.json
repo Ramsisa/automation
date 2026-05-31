@@ -1,0 +1,9 @@
+{
+  "name": "get-schedule-status",
+  "label": "Get Schedule Status",
+  "description": "Fetch the current status of a previously submitted schedule.",
+  "type": "action",
+  "actionType": "read",
+  "connection": "apiKey",
+  "webhook": null
+}

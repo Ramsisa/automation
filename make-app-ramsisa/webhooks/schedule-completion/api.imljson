@@ -1,0 +1,15 @@
+{
+  "verification": {
+    "respond": {
+      "status": 200,
+      "body": "ok",
+      "type": "text"
+    }
+  },
+  "respond": {
+    "status": 200,
+    "body": "{\"received\":true}",
+    "type": "json"
+  },
+  "output": "{{body}}"
+}

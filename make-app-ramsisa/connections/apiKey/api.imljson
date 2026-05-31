@@ -1,0 +1,17 @@
+{
+  "url": "{{parameters.baseUrl}}/api/{{parameters.apiVersion}}/health/",
+  "method": "GET",
+  "headers": {
+    "Authorization": "Bearer {{parameters.apiKey}}",
+    "Accept": "application/json"
+  },
+  "response": {
+    "valid": "{{statusCode == 200}}",
+    "error": {
+      "message": "[{{statusCode}}] Could not authenticate against Ramsisa: {{ifempty(body.detail, ifempty(body.error, ifempty(body.message, 'check your Base URL and API Key')))}}"
+    }
+  },
+  "log": {
+    "sanitize": ["request.headers.authorization"]
+  }
+}

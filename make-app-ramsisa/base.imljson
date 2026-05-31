@@ -1,0 +1,12 @@
+{
+  "baseUrl": "{{connection.baseUrl}}/api/{{connection.apiVersion}}",
+  "headers": {
+    "Authorization": "Bearer {{connection.apiKey}}",
+    "Accept": "application/json"
+  },
+  "response": {
+    "error": {
+      "message": "[{{statusCode}}] {{ifempty(body.detail, ifempty(body.error, ifempty(body.message, 'Ramsisa API error')))}}"
+    }
+  }
+}

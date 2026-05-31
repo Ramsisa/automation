@@ -1,0 +1,17 @@
+{
+  "name": "ramsisa",
+  "label": "Ramsisa",
+  "version": 1,
+  "description": "Generate and manage Ramsisa field-visit schedules. Pairs with Sheets, HubSpot, Salesforce, Slack, Gmail, and any other Make module.",
+  "language": "en",
+  "private": true,
+  "countries": [],
+  "categories": ["sales", "productivity"],
+  "audience": "global",
+  "icon": "ramsisa",
+  "theme": "#0f172a",
+  "website": "https://ramsisa.com",
+  "support": {
+    "email": "leaders@upsynx.com"
+  }
+}

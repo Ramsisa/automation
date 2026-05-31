@@ -1,0 +1,5 @@
+[
+  { "name": "schedule_id", "type": "uuid", "label": "Schedule ID" },
+  { "name": "status", "type": "text", "label": "Status" },
+  { "name": "created_at", "type": "date", "label": "Created At" }
+]

@@ -1,0 +1,3 @@
+{
+  "_note": "TODO. Ramsisa does not support programmatic webhook registration — the user pastes the Make-provided webhook URL into a Generate Schedule call's webhookUrl field. This file is a no-op stub kept for SDK compatibility."
+}

@@ -1,0 +1,49 @@
+name: ramsisa-automation-dev
+
+services:
+  # One-shot first-run setup. See _scripts/init-import.sh for details.
+  # Two phases:
+  #   1. Pack n8n-nodes-ramsisa and install it into ~/.n8n/nodes so it loads
+  #      under its real package name (matches the workflow JSON `type` fields).
+  #      Loading via N8N_CUSTOM_EXTENSIONS would namespace it as CUSTOM.* and
+  #      break the imported workflows.
+  #   2. Sync every workflows/n8n/<slug>/workflow.json into the SQLite DB
+  #      (upsert via deterministic ids).
+  n8n-init:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: ramsisa-n8n-init
+    entrypoint: ["sh", "/data/workflows/_scripts/init-import.sh"]
+    environment:
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      TZ: ${TZ:-Africa/Cairo}
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ../workflows/n8n:/data/workflows:ro
+      - ../n8n-nodes-ramsisa:/data/custom-extensions/n8n-nodes-ramsisa:ro
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: ramsisa-n8n-dev
+    restart: unless-stopped
+    depends_on:
+      n8n-init:
+        condition: service_completed_successfully
+    ports:
+      - "5679:5678"
+    environment:
+      # n8n defaults to SQLite when DB_TYPE is unset — no Postgres needed for dev.
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: ${WEBHOOK_URL:-http://localhost:5679/}
+      GENERIC_TIMEZONE: ${TZ:-Africa/Cairo}
+      TZ: ${TZ:-Africa/Cairo}
+      N8N_DIAGNOSTICS_ENABLED: "false"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ../workflows/n8n:/data/workflows:ro
+
+volumes:
+  n8n_data:

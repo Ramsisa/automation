@@ -1,0 +1,7 @@
+[
+  { "name": "schedule_id", "type": "uuid", "label": "Schedule ID" },
+  { "name": "status", "type": "text", "label": "Status" },
+  { "name": "month", "type": "text", "label": "Month" },
+  { "name": "download_url", "type": "url", "label": "Download URL" },
+  { "name": "error", "type": "text", "label": "Error" }
+]

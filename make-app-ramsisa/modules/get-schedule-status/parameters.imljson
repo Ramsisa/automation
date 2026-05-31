@@ -1,0 +1,9 @@
+[
+  {
+    "name": "scheduleId",
+    "label": "Schedule ID",
+    "type": "uuid",
+    "required": true,
+    "help": "UUID returned from a Generate Schedule call."
+  }
+]

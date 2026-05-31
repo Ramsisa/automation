@@ -1,0 +1,16 @@
+{
+  "url": "/schedules/generate/",
+  "method": "POST",
+  "body": {
+    "locations": "{{parameters.locations}}",
+    "month": "{{parameters.month}}",
+    "webhook_url": "{{ifempty(parameters.webhookUrl, undefined)}}",
+    "visits_completed": "{{ifempty(parameters.visits_completed, undefined)}}",
+    "monthly_target": "{{ifempty(parameters.monthly_target, undefined)}}",
+    "period_target": "{{ifempty(parameters.period_target, undefined)}}",
+    "excluded_days": "{{ifempty(parameters.excluded_days, undefined)}}"
+  },
+  "response": {
+    "output": "{{body}}"
+  }
+}

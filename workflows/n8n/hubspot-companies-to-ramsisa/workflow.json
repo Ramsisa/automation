@@ -1,0 +1,164 @@
+{
+  "name": "HubSpot Companies → Ramsisa",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 1 * *"
+            }
+          ]
+        }
+      },
+      "name": "Monthly Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "name": "month",
+              "value": "={{$now.plus({months: 1}).toFormat('yyyy-LL')}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "company",
+        "operation": "getAll",
+        "returnAll": true,
+        "additionalFields": {
+          "properties": [
+            "name",
+            "hubspot_owner_id",
+            "ramsisa_include",
+            "ramsisa_tier",
+            "ramsisa_territory",
+            "ramsisa_latitude",
+            "ramsisa_longitude",
+            "ramsisa_lat",
+            "ramsisa_lng",
+            "ramsisa_available_from",
+            "ramsisa_available_to",
+            "ramsisa_available_days"
+          ]
+        }
+      },
+      "name": "HubSpot: List companies",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        300
+      ],
+      "credentials": {
+        "hubspotApi": {
+          "name": "HubSpot account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Convert HubSpot company records into Ramsisa locations[] payloads — one per rep.\n//\n// Selection: only companies with `ramsisa_include` truthy are scheduled.\n// Grouping: companies are grouped by `hubspot_owner_id` (the standard HubSpot\n//   owner field). Each owner becomes one Ramsisa /schedules/generate/ call —\n//   this matches the API's per-rep shape: one call = one rep's schedule.\n//   Companies with `ramsisa_include=true` but no HubSpot owner are skipped.\n//\n// Field names match the Ramsisa API exactly (https://schedule.ramsisa.com/docs/api-reference/):\n//   id, name, tier, territory, latitude, longitude, available_from?, available_to?, available_days?\n//\n// HubSpot custom properties expected on the Company object:\n//   ramsisa_include (bool), ramsisa_tier, ramsisa_territory,\n//   ramsisa_latitude, ramsisa_longitude (or `ramsisa_lat` / `ramsisa_lng` as aliases),\n//   ramsisa_available_from?, ramsisa_available_to?, ramsisa_available_days?\n//\n// `territory` is a sub-area within ONE rep's coverage (used by Ramsisa to keep\n// day-routes tight). It is NOT how reps are partitioned — that's the owner.\n//\n// available_days accepts comma, semicolon, whitespace, or pipe as separators.\n\nconst DAY_ALIASES = {\n  sat: 'saturday', sun: 'sunday', mon: 'monday', tue: 'tuesday', wed: 'wednesday', thu: 'thursday', fri: 'friday',\n};\n\nfunction prop(record, key) {\n  // HubSpot v2 records expose properties either at record.properties[key] or record[key].\n  if (record.properties && key in record.properties) return record.properties[key];\n  return record[key];\n}\n\nfunction truthy(v) {\n  if (v == null) return false;\n  if (typeof v === 'boolean') return v;\n  const s = String(v).trim().toLowerCase();\n  return s === 'true' || s === 'yes' || s === '1';\n}\n\nconst byOwner = new Map();\nconst skipped = [];\n\nfor (const item of $input.all()) {\n  const c = item.json;\n  if (!truthy(prop(c, 'ramsisa_include'))) continue;\n\n  const id = String(c.id ?? c.companyId ?? prop(c, 'hs_object_id') ?? '').trim();\n  if (!id) { skipped.push({ reason: 'missing HubSpot id', record: c }); continue; }\n\n  const ownerId = String(prop(c, 'hubspot_owner_id') ?? '').trim();\n  if (!ownerId) {\n    skipped.push({ reason: 'company has no HubSpot owner — assign one to schedule it', id });\n    continue;\n  }\n\n  const tier = String(prop(c, 'ramsisa_tier') ?? '').trim().toUpperCase();\n  const territory = String(prop(c, 'ramsisa_territory') ?? '').trim();\n  const latitude = Number(prop(c, 'ramsisa_latitude') ?? prop(c, 'ramsisa_lat'));\n  const longitude = Number(prop(c, 'ramsisa_longitude') ?? prop(c, 'ramsisa_lng'));\n\n  if (!tier || !territory || Number.isNaN(latitude) || Number.isNaN(longitude)) {\n    skipped.push({ reason: 'missing required ramsisa_* properties', id, tier, territory, latitude, longitude });\n    continue;\n  }\n\n  const loc = {\n    id,\n    name: String(prop(c, 'name') ?? id),\n    tier,\n    territory,\n    latitude,\n    longitude,\n  };\n\n  const from = prop(c, 'ramsisa_available_from');\n  const to = prop(c, 'ramsisa_available_to');\n  const days = prop(c, 'ramsisa_available_days');\n  if (from) loc.available_from = String(from);\n  if (to) loc.available_to = String(to);\n  if (days) {\n    loc.available_days = String(days)\n      .split(/[,;|\\s]+/)\n      .filter(Boolean)\n      .map((s) => s.toLowerCase())\n      .map((s) => DAY_ALIASES[s] || s);\n  }\n\n  if (!byOwner.has(ownerId)) byOwner.set(ownerId, []);\n  byOwner.get(ownerId).push(loc);\n}\n\nif (byOwner.size === 0) {\n  throw new Error(\n    `No HubSpot companies eligible for scheduling (${skipped.length} skipped). ` +\n    'Each company needs ramsisa_include=true, ramsisa_tier, ramsisa_territory, ' +\n    'ramsisa_latitude/longitude, AND a HubSpot owner.'\n  );\n}\n\n// Emit one item per rep. The Ramsisa: Generate Schedule node downstream\n// fires once per item by default — one /schedules/generate/ call per rep.\nreturn Array.from(byOwner.entries()).map(([owner_id, locations]) => ({\n  json: {\n    owner_id,\n    locations,\n    location_count: locations.length,\n    skipped_count: skipped.length,\n  },\n}));"
+      },
+      "name": "Group companies by owner",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "generate",
+        "locations": "={{ JSON.stringify($json.locations) }}",
+        "month": "={{ $('Config').first().json.month }}",
+        "webhookUrl": "",
+        "additionalFields": {}
+      },
+      "name": "Ramsisa: Generate Schedule",
+      "type": "n8n-nodes-ramsisa.ramsisa",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        300
+      ],
+      "credentials": {
+        "ramsisaApi": {
+          "name": "Ramsisa API"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Monthly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "HubSpot: List companies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot: List companies": {
+      "main": [
+        [
+          {
+            "node": "Group companies by owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group companies by owner": {
+      "main": [
+        [
+          {
+            "node": "Ramsisa: Generate Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

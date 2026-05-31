@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+# Run only if a workflow file or one of its inputs changed in this commit.
+changed=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^(workflows/|n8n-nodes-ramsisa/(credentials|nodes|package\.json))' || true)
+if [ -z "$changed" ]; then
+  exit 0
+fi
+
+echo "ramsisa: workflow inputs changed — running sanitize:check + validate"
+npm run --silent sanitize:check || exit 1
+npm run --silent validate || exit 1

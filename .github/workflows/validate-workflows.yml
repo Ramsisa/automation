@@ -1,0 +1,39 @@
+name: Validate workflows
+
+on:
+  pull_request:
+    paths:
+      - "workflows/**"
+      - "n8n-nodes-ramsisa/credentials/**"
+      - "n8n-nodes-ramsisa/nodes/**"
+      - "n8n-nodes-ramsisa/package.json"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/validate-workflows.yml"
+  push:
+    branches: [main]
+    paths:
+      - "workflows/**"
+      - "n8n-nodes-ramsisa/credentials/**"
+      - "n8n-nodes-ramsisa/nodes/**"
+      - "n8n-nodes-ramsisa/package.json"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install root dev-deps
+        run: npm ci --ignore-scripts
+
+      - name: Check workflow sanitization
+        run: npm run sanitize:check
+
+      - name: Validate workflows
+        run: npm run validate

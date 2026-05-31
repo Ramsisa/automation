@@ -1,0 +1,3 @@
+{
+  "_note": "TODO. Detach is a no-op for the same reason as attach.imljson — the registration is manual."
+}

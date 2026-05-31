@@ -1,0 +1,9 @@
+{
+  "name": "download-schedule-csv",
+  "label": "Download Schedule CSV",
+  "description": "Download the generated schedule as a CSV file.",
+  "type": "action",
+  "actionType": "read",
+  "connection": "apiKey",
+  "webhook": null
+}

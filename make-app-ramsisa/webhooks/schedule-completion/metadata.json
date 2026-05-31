@@ -1,0 +1,7 @@
+{
+  "name": "schedule-completion",
+  "label": "Ramsisa Schedule Webhook",
+  "description": "Webhook receiver for schedule completion / failure events. Make produces a public URL; paste it into the Webhook URL field of a Generate Schedule call.",
+  "type": "web",
+  "connection": "apiKey"
+}

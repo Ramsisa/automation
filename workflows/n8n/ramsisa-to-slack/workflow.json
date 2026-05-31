@@ -1,0 +1,90 @@
+{
+  "name": "Ramsisa → Slack",
+  "nodes": [
+    {
+      "parameters": {
+        "enrichWithStatus": true,
+        "downloadCsv": false
+      },
+      "name": "Ramsisa Trigger",
+      "type": "n8n-nodes-ramsisa.ramsisaTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "credentials": {
+        "ramsisaApi": {
+          "name": "Ramsisa API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "// Format a Ramsisa schedule webhook payload as a Slack message.\n// Payload shape (per https://schedule.ramsisa.com/docs/api-reference/):\n//   { schedule_id, status, download_url, summary: { total_visits, total_days } }\n// `download_url` is a relative path (e.g. \"/api/v1/schedules/{id}/download/\")\n// unless the Schedule server has SCHEDULE_PUBLIC_BASE_URL set, in which case\n// it is absolute. Only emit a clickable link in the absolute case.\n\nconst j = $json;\nconst status = (j.status || 'unknown').toString();\nconst icon = status === 'completed' ? ':white_check_mark:' : status === 'failed' ? ':x:' : ':hourglass:';\n\nconst lines = [\n  `${icon} *Ramsisa schedule ${status}*`,\n  `*Schedule ID:* \\`${j.schedule_id ?? '—'}\\``,\n];\n\nif (j.summary && typeof j.summary === 'object') {\n  const s = j.summary;\n  const summaryBits = [\n    s.total_visits != null ? `${s.total_visits} visits` : null,\n    s.total_days != null ? `${s.total_days} days` : null,\n  ].filter(Boolean);\n  if (summaryBits.length) lines.push(`*Summary:* ${summaryBits.join(' · ')}`);\n}\n\nif (status === 'completed' && typeof j.download_url === 'string' && j.download_url) {\n  if (/^https?:\\/\\//i.test(j.download_url)) {\n    lines.push(`<${j.download_url}|Download CSV>`);\n  } else {\n    lines.push(`_Download path: \\`${j.download_url}\\` — fetch via the Ramsisa API. Set SCHEDULE_PUBLIC_BASE_URL on the Ramsisa server to get an absolute URL._`);\n  }\n}\nif (status === 'failed' && j.error) {\n  lines.push(`*Error:* ${j.error}`);\n}\n\nreturn { json: { text: lines.join('\\n'), status } };"
+      },
+      "name": "Format message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "YOUR_SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "name": "Slack: post",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        300
+      ],
+      "credentials": {
+        "slackApi": {
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Ramsisa Trigger": {
+      "main": [
+        [
+          {
+            "node": "Format message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format message": {
+      "main": [
+        [
+          {
+            "node": "Slack: post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

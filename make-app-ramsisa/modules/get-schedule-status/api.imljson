@@ -1,0 +1,7 @@
+{
+  "url": "/schedules/{{parameters.scheduleId}}/",
+  "method": "GET",
+  "response": {
+    "output": "{{body}}"
+  }
+}
