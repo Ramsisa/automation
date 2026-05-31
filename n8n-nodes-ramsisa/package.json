@@ -20,8 +20,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ramsisa/schedule.git",
-    "directory": "automation/n8n-nodes-ramsisa"
+    "url": "git+https://github.com/ramsisa/automation.git",
+    "directory": "n8n-nodes-ramsisa"
   },
   "engines": {
     "node": ">=20.15"

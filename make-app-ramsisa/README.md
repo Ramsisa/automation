@@ -42,7 +42,7 @@ make-app-ramsisa/
   prefix, `Authorization: Bearer {{connection.apiKey}}` header, and a generic
   error-message extractor.
 - `connections/apiKey/parameters.imljson` — three user inputs:
-  `baseUrl` (default `https://api.ramsisa.com`), `apiVersion` (`v1`),
+  `baseUrl` (default `https://schedule.ramsisa.com`), `apiVersion` (`v1`),
   `apiKey` (password-typed).
 - `connections/apiKey/api.imljson` — health-check call to
   `/api/{{parameters.apiVersion}}/health/` so Make can validate the

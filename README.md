@@ -6,7 +6,7 @@ Integration packages and pre-built workflows for **Ramsisa Schedule**. Drop them
 
 Ramsisa Schedule is a **tiered, territory-aware field-visit scheduler**. You hand it a list of locations — each with a `tier` (A/B/C), a `territory`, latitude/longitude, and an availability window — plus a target month and a rep. It returns a complete day-by-day route plan: which locations that rep visits, on which day, in what order, respecting the visit frequency that the tier dictates.
 
-It is delivered as an HTTP API. The core surface, all under `https://api.ramsisa.com/api/v1/`:
+It is delivered as an HTTP API at <https://schedule.ramsisa.com/> (paths versioned under `/api/v1/`). The core surface:
 
 | Endpoint                          | What it does                                                                  |
 | --------------------------------- | ----------------------------------------------------------------------------- |
@@ -51,7 +51,7 @@ If you're building your own integration — a CLI, a script, a different platfor
 
 - **Shape of a real payload** — what `locations`, `tier`, `territory`, `available_from/to` look like for an actual rep. The sample data in `workflows/n8n/sheets-ramsisa-gmail-loop/sample-data/` is a runnable example.
 - **Sync vs. async** — `Generate Schedule (Wait for Completion)` in `n8n-nodes-ramsisa/nodes/Ramsisa/` shows the poll-until-terminal pattern; the Trigger node shows the webhook-driven pattern. Pick whichever your environment supports.
-- **One-rep-per-call orchestration** — Ramsisa generates one rep's schedule per request. The `sheets-ramsisa-gmail-loop` workflow shows how to loop a roster of reps through the same API.
+- **One-rep-per-call shape** — Ramsisa generates one rep's schedule per request. The `sheets-ramsisa-gmail-loop` workflow is the minimal 1:1 mapping of that contract (one sheet of locations in, one CSV out, one email sent). Scaling to a team is orchestration on top — duplicate the workflow per rep, or wrap it with a parent flow that calls it via `Execute Workflow` for each rep.
 - **Closing the loop into a CRM** — `ramsisa-to-hubspot-tasks` shows how to turn each visit in the returned CSV into a task on the matching Company.
 - **API-version pinning** — every package builds URLs as `${baseUrl}/api/${apiVersion}/...`. Borrow the pattern; future major versions of the API land additively instead of breaking your code.
 

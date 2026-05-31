@@ -18,11 +18,11 @@ Requires n8n `>= 1.20` (uses `NodeConnectionType`).
 
 Create a **Ramsisa API** credential with:
 
-| Field       | Default                   | Description                                                                                          |
-| ----------- | ------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Base URL    | `https://api.ramsisa.com` | Root URL of your Ramsisa instance (no `/api` suffix).                                                |
-| API Version | `v1`                      | API version this connection targets. Pinned so future major versions don't break existing workflows. |
-| API Key     | _(required)_              | Bearer token from your Ramsisa organization admin.                                                   |
+| Field       | Default                        | Description                                                                                          |
+| ----------- | ------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Base URL    | `https://schedule.ramsisa.com` | Root URL of your Ramsisa instance (no `/api` suffix).                                                |
+| API Version | `v1`                           | API version this connection targets. Pinned so future major versions don't break existing workflows. |
+| API Key     | _(required)_                   | Bearer token from your Ramsisa organization admin.                                                   |
 
 The credential test hits `GET {baseUrl}/api/{apiVersion}/health/` to validate connectivity.
 
