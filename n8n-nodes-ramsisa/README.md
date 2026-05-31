@@ -12,7 +12,7 @@ In your n8n instance: **Settings → Community Nodes → Install** and enter:
 n8n-nodes-ramsisa
 ```
 
-Requires n8n `>= 1.20` (uses `NodeConnectionType`).
+Requires n8n `>= 1.123` (or 2.x) on Node `>= 22.16`.
 
 ## Credentials
 
@@ -60,14 +60,14 @@ The trigger relies on the Ramsisa server emitting an absolute `download_url` (co
 
 ## Compatibility matrix
 
-| `n8n-nodes-ramsisa` version | Ramsisa API version | n8n version |
-| --------------------------- | ------------------- | ----------- |
-| `0.1.x`                     | `v1`                | `>= 1.20`   |
+| `n8n-nodes-ramsisa` version | Ramsisa API version | n8n version       | Node version |
+| --------------------------- | ------------------- | ----------------- | ------------ |
+| `0.1.x`                     | `v1`                | `>= 1.123` or 2.x | `>= 22.16`   |
 
 ## Local development
 
 ```bash
-cd automation/n8n-nodes-ramsisa
+cd n8n-nodes-ramsisa
 npm install
 npm run build
 ```
