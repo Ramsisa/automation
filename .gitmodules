@@ -1,0 +1,3 @@
+[submodule "n8n-nodes-ramsisa"]
+	path = n8n-nodes-ramsisa
+	url = https://github.com/Ramsisa/n8n-nodes-ramsisa.git

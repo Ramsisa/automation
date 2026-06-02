@@ -40,7 +40,7 @@ The packages below wrap the Ramsisa API as **native building blocks** inside no-
 
 | Path                  | What it is                                                                                                          | Status                |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------- |
-| `n8n-nodes-ramsisa/`  | n8n community node (npm package). Credentials + action operations (Generate / Generate-and-Wait / Get Status / Download). | v0.1.2 published [↗](https://www.npmjs.com/package/n8n-nodes-ramsisa) |
+| `n8n-nodes-ramsisa/`  | n8n community node (npm package). Credentials + action operations (Generate / Generate-and-Wait / Get Status / Download). Source lives in [`Ramsisa/n8n-nodes-ramsisa`](https://github.com/Ramsisa/n8n-nodes-ramsisa) and is embedded here as a git submodule. | v0.1.6 published [↗](https://www.npmjs.com/package/n8n-nodes-ramsisa), passed n8n's automated verification review |
 | `make-app-ramsisa/`   | Make custom app definition — same surface for Make's marketplace.                                                   | scaffolded            |
 | `workflows/n8n/`      | Pre-built n8n workflows that depend on `n8n-nodes-ramsisa`. See [Workflows](#workflows) below; strategy in `workflows/PLAN.md`. | v1 set built |
 | `workflows/make/`     | Pre-built Make scenarios that depend on `make-app-ramsisa`.                                                         | planned               |
