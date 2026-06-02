@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-ramsisa",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "n8n community node for the Ramsisa field visit scheduling API.",
   "keywords": [
     "n8n-community-node-package",
@@ -16,7 +16,7 @@
   "homepage": "https://ramsisa.com",
   "author": {
     "name": "Ramsisa",
-    "email": "leaders@upsynx.com"
+    "email": "framawy@ramsisa.com"
   },
   "repository": {
     "type": "git",
