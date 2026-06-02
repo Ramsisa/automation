@@ -11,7 +11,7 @@ on:
       - "package-lock.json"
       - ".github/workflows/validate-workflows.yml"
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - "workflows/**"
       - "n8n-nodes-ramsisa/credentials/**"

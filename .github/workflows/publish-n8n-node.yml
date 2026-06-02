@@ -1,0 +1,46 @@
+name: Publish n8n-nodes-ramsisa
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    # Only fire for releases tagged under this package's namespace, so future
+    # releases of the Make app or workflows don't accidentally trigger an
+    # npm publish here.
+    if: startsWith(github.event.release.tag_name, 'n8n-nodes-ramsisa/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: n8n-nodes-ramsisa
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+          cache: "npm"
+          cache-dependency-path: n8n-nodes-ramsisa/package-lock.json
+
+      - name: Verify tag matches package.json version
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${GITHUB_REF_NAME#n8n-nodes-ramsisa/v}"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish with provenance
+        run: npm publish --provenance --access public
