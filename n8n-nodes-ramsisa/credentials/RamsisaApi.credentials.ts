@@ -1,5 +1,6 @@
 import {
   IAuthenticateGeneric,
+  Icon,
   ICredentialTestRequest,
   ICredentialType,
   INodeProperties,
@@ -9,6 +10,7 @@ export class RamsisaApi implements ICredentialType {
   name = "ramsisaApi";
   displayName = "Ramsisa API";
   documentationUrl = "https://ramsisa.com/docs/integrations/n8n";
+  icon: Icon = "file:icons/ramsisa.svg";
 
   properties: INodeProperties[] = [
     {

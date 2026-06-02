@@ -5,7 +5,11 @@ import {
   INodeExecutionData,
   INodeType,
   INodeTypeDescription,
+  JsonObject,
+  NodeApiError,
+  NodeConnectionTypes,
   NodeOperationError,
+  sleep,
 } from "n8n-workflow";
 
 function parseJsonParam(
@@ -43,8 +47,9 @@ export class Ramsisa implements INodeType {
     subtitle: '={{$parameter["operation"]}}',
     description: "Generate and manage Ramsisa field visit schedules.",
     defaults: { name: "Ramsisa" },
-    inputs: ["main"],
-    outputs: ["main"],
+    usableAsTool: true,
+    inputs: [NodeConnectionTypes.Main],
+    outputs: [NodeConnectionTypes.Main],
     credentials: [{ name: "ramsisaApi", required: true }],
     properties: [
       {
@@ -53,6 +58,13 @@ export class Ramsisa implements INodeType {
         type: "options",
         noDataExpression: true,
         options: [
+          {
+            name: "Download Schedule CSV",
+            value: "download",
+            action: "Download schedule CSV",
+            description:
+              "Download the generated schedule as a CSV binary attachment",
+          },
           {
             name: "Generate Schedule",
             value: "generate",
@@ -73,13 +85,6 @@ export class Ramsisa implements INodeType {
             action: "Get schedule status",
             description: "Check the status of a previously submitted schedule",
           },
-          {
-            name: "Download Schedule CSV",
-            value: "download",
-            action: "Download schedule CSV",
-            description:
-              "Download the generated schedule as a CSV binary attachment",
-          },
         ],
         default: "generateAndWait",
       },
@@ -92,7 +97,7 @@ export class Ramsisa implements INodeType {
         required: true,
         default: "[]",
         description:
-          "Array of location objects. Each item: { id, name, tier (A|B|C), territory, latitude, longitude, available_from?, available_to?, available_days? }. See https://schedule.ramsisa.com/docs/api-reference/ for full field details.",
+          "Array of location objects. Each item: { ID, name, tier (A|B|C), territory, latitude, longitude, available_from?, available_to?, available_days? }. See https://schedule.ramsisa.com/docs/api-reference/ for full field details.",
         displayOptions: {
           show: { operation: ["generate", "generateAndWait"] },
         },
@@ -353,7 +358,6 @@ export class Ramsisa implements INodeType {
 
           const start = Date.now();
           let status: IDataObject = generateRes;
-          // eslint-disable-next-line no-constant-condition
           while (true) {
             status = (await this.helpers.httpRequestWithAuthentication.call(
               this,
@@ -373,9 +377,7 @@ export class Ramsisa implements INodeType {
                 { itemIndex: i },
               );
             }
-            await new Promise((resolve) =>
-              setTimeout(resolve, pollIntervalSec * 1000),
-            );
+            await sleep(pollIntervalSec * 1000);
           }
 
           const item: INodeExecutionData = {
@@ -497,7 +499,9 @@ export class Ramsisa implements INodeType {
           });
           continue;
         }
-        throw error;
+        throw new NodeApiError(this.getNode(), error as JsonObject, {
+          itemIndex: i,
+        });
       }
     }
 

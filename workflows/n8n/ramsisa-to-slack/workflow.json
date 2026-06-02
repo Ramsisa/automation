@@ -3,14 +3,29 @@
   "nodes": [
     {
       "parameters": {
-        "enrichWithStatus": true,
-        "downloadCsv": false
+        "httpMethod": "POST",
+        "path": "ramsisa-completion",
+        "responseMode": "onReceived",
+        "options": {}
       },
-      "name": "Ramsisa Trigger",
-      "type": "n8n-nodes-ramsisa.ramsisaTrigger",
-      "typeVersion": 1,
+      "name": "Webhook: Ramsisa completion",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
       "position": [
         240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getStatus",
+        "scheduleId": "={{ $json.body.schedule_id }}"
+      },
+      "name": "Ramsisa: Get Schedule Status",
+      "type": "n8n-nodes-ramsisa.ramsisa",
+      "typeVersion": 1,
+      "position": [
+        460,
         300
       ],
       "credentials": {
@@ -29,7 +44,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        460,
+        680,
         300
       ]
     },
@@ -50,7 +65,7 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.2,
       "position": [
-        680,
+        900,
         300
       ],
       "credentials": {
@@ -61,7 +76,18 @@
     }
   ],
   "connections": {
-    "Ramsisa Trigger": {
+    "Webhook: Ramsisa completion": {
+      "main": [
+        [
+          {
+            "node": "Ramsisa: Get Schedule Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ramsisa: Get Schedule Status": {
       "main": [
         [
           {

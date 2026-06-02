@@ -5,7 +5,8 @@
 //   1. README.md exists and parses with front-matter (apiVersion + requires).
 //   2. workflow.json exists, parses as JSON, has a `nodes` array.
 //   3. Every `n8n-nodes-ramsisa.*` node type in the workflow exists in the
-//      current `n8n-nodes-ramsisa` build (Ramsisa, RamsisaTrigger).
+//      current `n8n-nodes-ramsisa` build (currently just Ramsisa, the action
+//      node; webhook flows use n8n's built-in Webhook node).
 //   4. README front-matter `apiVersion` is one of the credentials' apiVersion
 //      options (currently ["v1"]).
 //   5. README front-matter `requires["n8n-nodes-ramsisa"]` semver range is

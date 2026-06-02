@@ -40,7 +40,7 @@ The packages below wrap the Ramsisa API as **native building blocks** inside no-
 
 | Path                  | What it is                                                                                                          | Status                |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------- | --------------------- |
-| `n8n-nodes-ramsisa/`  | n8n community node (npm package). Credentials, action operations (Generate / Get Status / Download), webhook trigger. | v0.1.1 built, unpublished |
+| `n8n-nodes-ramsisa/`  | n8n community node (npm package). Credentials + action operations (Generate / Generate-and-Wait / Get Status / Download). | v0.1.2 published [↗](https://www.npmjs.com/package/n8n-nodes-ramsisa) |
 | `make-app-ramsisa/`   | Make custom app definition — same surface for Make's marketplace.                                                   | scaffolded            |
 | `workflows/n8n/`      | Pre-built n8n workflows that depend on `n8n-nodes-ramsisa`. See [Workflows](#workflows) below; strategy in `workflows/PLAN.md`. | v1 set built |
 | `workflows/make/`     | Pre-built Make scenarios that depend on `make-app-ramsisa`.                                                         | planned               |
@@ -50,7 +50,7 @@ The packages below wrap the Ramsisa API as **native building blocks** inside no-
 If you're building your own integration — a CLI, a script, a different platform, a quick PoC to see whether Ramsisa fits your data — read these as **working examples** of the Ramsisa API in motion. You get answers to the questions that the OpenAPI spec alone doesn't:
 
 - **Shape of a real payload** — what `locations`, `tier`, `territory`, `available_from/to` look like for an actual rep. The sample data in `workflows/n8n/sheets-ramsisa-gmail-loop/sample-data/` is a runnable example.
-- **Sync vs. async** — `Generate Schedule (Wait for Completion)` in `n8n-nodes-ramsisa/nodes/Ramsisa/` shows the poll-until-terminal pattern; the Trigger node shows the webhook-driven pattern. Pick whichever your environment supports.
+- **Sync vs. async** — `Generate Schedule (Wait for Completion)` in `n8n-nodes-ramsisa/nodes/Ramsisa/` shows the poll-until-terminal pattern. For the webhook-driven alternative, hand `webhook_url` off to n8n's built-in Webhook node — the completion payload (`schedule_id`, `status`, `download_url`) is enough to drive whatever comes next without a custom trigger.
 - **One-rep-per-call shape** — Ramsisa generates one rep's schedule per request. The `sheets-ramsisa-gmail-loop` workflow is the minimal 1:1 mapping of that contract (one sheet of locations in, one CSV out, one email sent). Scaling to a team is orchestration on top — duplicate the workflow per rep, or wrap it with a parent flow that calls it via `Execute Workflow` for each rep.
 - **Closing the loop into a CRM** — `ramsisa-to-hubspot-tasks` shows how to turn each visit in the returned CSV into a task on the matching Company.
 - **API-version pinning** — every package builds URLs as `${baseUrl}/api/${apiVersion}/...`. Borrow the pattern; future major versions of the API land additively instead of breaking your code.

@@ -49,14 +49,25 @@ columns are:
 | `territory`     | no                        | Shown in the task body for context.                               |
 | `tier`          | no                        | Shown in the task body for context.                               |
 
+## How it works
+
+n8n's built-in **Webhook** node receives the completion event from Ramsisa.
+**Ramsisa: Get Schedule Status** enriches the payload (so the `If completed`
+branch and downstream nodes can rely on the canonical status object). On a
+`completed` status, **Ramsisa: Download CSV** fetches the schedule as a
+binary attachment, the Code node parses it into one item per visit, and
+HubSpot's Tasks API receives a batched stream of task creations.
+
 ## Setup steps
 
 1. **Import** `workflow.json` into n8n.
 2. **Bind credentials**:
-   - `Ramsisa Trigger` → your `Ramsisa API` credential.
+   - `Ramsisa: Get Schedule Status` and `Ramsisa: Download CSV` → your
+     `Ramsisa API` credential (the same credential for both).
    - `HubSpot: Create task` → your `HubSpot API` private-app credential with
      scopes `crm.objects.companies.read` and `crm.objects.tasks.write`.
-3. **Activate** the workflow. Copy the `Ramsisa Trigger` Production URL.
+3. **Activate** the workflow. Copy the `Webhook: Ramsisa completion`
+   Production URL.
 4. **Pass that URL** as the `webhook_url` on every `Ramsisa: Generate Schedule`
    call you want to mirror into HubSpot. The companion
    `hubspot-companies-to-ramsisa` workflow has a `Webhook URL` field on its

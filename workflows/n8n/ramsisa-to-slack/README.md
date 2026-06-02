@@ -35,15 +35,23 @@ If the enrichment lookup finds extra fields (e.g. `summary.total_visits`),
 they are surfaced automatically — but the workflow degrades gracefully when
 they are missing.
 
+## How it works
+
+n8n's built-in **Webhook** node receives the completion event from Ramsisa,
+then the **Ramsisa: Get Schedule Status** action enriches the payload with
+the full status object (so the Slack message can include the summary counts
+even when the raw webhook payload omits them). The enriched payload feeds
+the Code node, which formats the message, then the Slack node posts it.
+
 ## Setup steps
 
 1. **Import** `workflow.json` into n8n (`Workflows → Import from File`).
 2. **Bind credentials**:
-   - `Ramsisa Trigger` → your `Ramsisa API` credential.
+   - `Ramsisa: Get Schedule Status` → your `Ramsisa API` credential.
    - `Slack: post` → a `Slack API` credential (Slack app with `chat:write` scope).
 3. **Replace `YOUR_SLACK_CHANNEL_ID`** in the `Slack: post` node with the channel ID
    (the `C...` value, not the channel name).
-4. **Activate** the workflow. Copy the `Ramsisa Trigger` node's **Production URL**.
+4. **Activate** the workflow. Copy the `Webhook: Ramsisa completion` node's **Production URL**.
 5. **Pass that URL** as the `webhook_url` on any `Ramsisa: Generate Schedule` call —
    directly via the n8n action node, the public API, or another integration.
 
