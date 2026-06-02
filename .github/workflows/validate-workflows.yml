@@ -4,9 +4,8 @@ on:
   pull_request:
     paths:
       - "workflows/**"
-      - "n8n-nodes-ramsisa/credentials/**"
-      - "n8n-nodes-ramsisa/nodes/**"
-      - "n8n-nodes-ramsisa/package.json"
+      - "n8n-nodes-ramsisa"
+      - ".gitmodules"
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/validate-workflows.yml"
@@ -14,15 +13,16 @@ on:
     branches: [master]
     paths:
       - "workflows/**"
-      - "n8n-nodes-ramsisa/credentials/**"
-      - "n8n-nodes-ramsisa/nodes/**"
-      - "n8n-nodes-ramsisa/package.json"
+      - "n8n-nodes-ramsisa"
+      - ".gitmodules"
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: true
 
       - uses: actions/setup-node@v6
         with:
