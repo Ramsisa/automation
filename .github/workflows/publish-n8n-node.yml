@@ -24,8 +24,9 @@ jobs:
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
-          cache: "npm"
-          cache-dependency-path: n8n-nodes-ramsisa/package-lock.json
+
+      - name: Upgrade npm CLI to 11.5.1+ (Trusted Publishing requirement)
+        run: npm install --global npm@latest
 
       - name: Verify tag matches package.json version
         run: |
