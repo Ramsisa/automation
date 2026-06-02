@@ -40,8 +40,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
-
-      - name: Publish with provenance
-        run: npm publish --provenance --access public
+      - name: Release (lint + build + publish with provenance)
+        run: npm run release
